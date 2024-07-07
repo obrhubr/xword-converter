@@ -62,6 +62,7 @@ class Plugin(Plugin):
 				across_clues += [{ 
 					"x": x,
 					"y": y,
+					"label": int(clue["label"]),
 					"clue": clue_text,
 					"word": self.word_from_squares(clue["cells"], grid),
 					"squares": clue["cells"],
@@ -71,6 +72,7 @@ class Plugin(Plugin):
 				down_clues += [{
 					"x": x,
 					"y": y,
+					"label": int(clue["label"]),
 					"clue": clue_text,
 					"word": self.word_from_squares(clue["cells"], grid),
 					"squares": clue["cells"],
