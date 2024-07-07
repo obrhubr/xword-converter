@@ -1,5 +1,6 @@
 import io
 import re
+import copy
 
 from plugin import Plugin
 from puzzle import Puzzle
@@ -181,9 +182,6 @@ class Plugin(Plugin):
 
 			label += inc
 
-		for c in across + down:
-			print(c["label"], c["clue"])
-
 		return across, down
 				
 	def parse_extras(self, extras, grid):
@@ -224,13 +222,147 @@ class Plugin(Plugin):
 			dimensions,
 			metadata
 		)
+	
+	def write_header(self, stream, puzzle):
+		# TODO: Correctly compute checksum
+		stream.write(b"\x00" * 2)
+
+		# Write magic number
+		stream.write("ACROSS&DOWN".encode("utf-8"))
+		stream.write(b"\x00")
+
+		stream.write(b"\x00" * 2)
+		stream.write(b"\x00" * 8)
+
+		# Write version
+		stream.write("2.0".encode("utf-8"))
+		stream.write(b"\x00")
+
+		stream.write(b"\x00" * 2)
+		stream.write(b"\x00" * 2)
+		stream.write(b"\x00" * 12)
+
+		# write dimensions
+		stream.write(puzzle.dimensions[0].to_bytes(1, byteorder='big'))
+		stream.write(puzzle.dimensions[1].to_bytes(1, byteorder='big'))
+
+		# write number of clues
+		stream.write(
+			(len(puzzle.across_clues) + len(puzzle.down_clues))
+			.to_bytes(2, byteorder='little')
+		)
+		
+		# Write puzzle type
+		stream.write(b"\x00" * 2)
+		stream.write(b"\x00" * 2)
+	
+	def write_boards(self, stream, puzzle):
+		for cell in puzzle.grid:
+			stream.write(cell[0].encode("ascii"))
+		for cell in puzzle.grid:
+			if cell != ".":
+				stream.write("-".encode("ascii"))
+			else:
+				stream.write(cell.encode("ascii"))
+	
+	def write_metadata(self, stream, puzzle):
+		# Write title
+		stream.write(puzzle.metadata["title"].encode("latin1"))
+		stream.write(b"\x00")
+		# Write author
+		stream.write(puzzle.metadata["author"].encode("latin1"))
+		stream.write(b"\x00")
+		# Write author
+		stream.write(puzzle.metadata["copyright"].encode("latin1"))
+		stream.write(b"\x00")
+	
+	def write_clues(self, stream, puzzle):
+		clues = copy.deepcopy(puzzle.all_clues())
+
+		# Sort clues in ascending order
+		clues.sort(key=lambda x: x["label"] * 2)
+
+		for clue in clues:
+			stream.write(clue["clue"].encode("latin1"))
+			stream.write(b"\x00")
+	
+	def write_notes(self, stream, puzzle):
+		if "notes" in puzzle.metadata:
+			for _, note in puzzle.metadata["notes"].items():
+				stream.write(note.encode("latin1"))
+		stream.write(b"\x00")
+	
+	def write_extras(self, stream, puzzle):
+		# Write GRBS
+		stream.write("GRBS".encode("latin1"))
+		# Write length
+		stream.write((puzzle.dimensions[0] * puzzle.dimensions[1]).to_bytes(2, byteorder="little"))
+		# Checksum
+		stream.write(b"\x00" * 2)
+
+		rebus_list = []
+		for cell in puzzle.grid:
+			if len(cell) > 1:
+				# Check if rebus already in list
+				if not cell in rebus_list:
+					rebus_list += [cell]
+
+				# Write position of rebus in RTBL to GRBS board
+				stream.write((rebus_list.index(cell) + 2).to_bytes(1, byteorder="little"))
+			else:
+				stream.write(b"\x00")
+
+		# terminate GRBS
+		stream.write(b"\x00")
+
+		# Write RTBL
+		stream.write("RTBL".encode("latin1"))
+
+		rtbl = ""
+		# create RTBL string
+		for idx, rebus in enumerate(rebus_list):
+			# write rebus to file, with space in front of rebus number if only one digit
+			rtbl += f"{'{:>2}'.format(idx + 1)}:{rebus};"
+
+		# Write length
+		stream.write((len(rtbl)).to_bytes(2, byteorder="little"))
+		# Checksum
+		stream.write(b"\x00" * 2)
+
+		stream.write(rtbl.encode("latin1"))
+
+		# terminate RTBL
+		stream.write(b"\x00")
+
 
 	def export(self, puzzle):
-		return
+		puzzle_stream = io.BytesIO()
+
+		# write header
+		self.write_header(puzzle_stream, puzzle)
+
+		# write boards
+		self.write_boards(puzzle_stream, puzzle)
+
+		# write metadata
+		self.write_metadata(puzzle_stream, puzzle)
+
+		# write clues
+		self.write_clues(puzzle_stream, puzzle)
+
+		# write notes
+		self.write_notes(puzzle_stream, puzzle)
+
+		# Write extras
+		# Check if there is any Rebus
+		if any(len(s) > 1 for s in puzzle.grid):
+			self.write_extras(puzzle_stream, puzzle)
+
+		return puzzle_stream
 	
 	def write(self, path, content):
 		with open(path, "wb") as f:
-			f.write(content)
+			f.write(content.getbuffer())
 
 		return
 	

@@ -12,3 +12,6 @@ class Puzzle:
 		self.metadata = metadata
 		
 		return
+	
+	def all_clues(self):
+		return self.across_clues + self.down_clues

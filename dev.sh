@@ -1,1 +1,1 @@
-python3.8 xw-converter.py -i ./data/extra.puz -if puz -o ./data/output.json -of json
+python3.8 xw-converter.py -i ./data/output.json -if json -o ./data/export_test.puz -of puz
