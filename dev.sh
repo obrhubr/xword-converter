@@ -1,1 +1,1 @@
-python3.8 xw-converter.py -i ./data/empty_clue.json -if json_nyt -o ./data/output.json -of json
+python3.8 xw-converter.py -i ./data/extra.puz -if puz -o ./data/output.json -of json

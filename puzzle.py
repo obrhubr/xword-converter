@@ -1,6 +1,6 @@
 class Puzzle:
 	# grid: list representing the filled out crossword. Black squares are "."
-	# across_clues: list of clues for words across, { x: 0, y: 0, word: "", clue: "", squares: [0, 10, 20], related_clues: [11, 12] }
+	# across_clues: list of clues for words across, { x: 0, y: 0, label: 0, word: "", clue: "", squares: [0, 10, 20], related_clues: [11, 12] }
 	# down_clues: same as across_clues
 	# dimensions: tuple (x, y) size
 	# metadata: dict with all metadata, but always: title, author, copyright, notes

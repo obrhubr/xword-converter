@@ -98,22 +98,7 @@ class Plugin(Plugin):
 
 		return grid
 	
-	def parse_clues(self, grid, dimensions, clues_list):
-		# Check if square already has clue assigned to it
-		def across_already(c_num, clues):
-			for clue in clues:
-				if c_num in clue["squares"]:
-					return True
-
-			return False
-		
-		def down_already(c_num, clues):
-			for clue in clues:
-				if c_num in clue["squares"]:
-					return True
-
-			return False
-		
+	def parse_clues(self, grid, dimensions, clues_list):		
 		def word_from_squares(squares, grid):
 			word = ""
 			for square in squares:
@@ -151,53 +136,55 @@ class Plugin(Plugin):
 			return squares
 
 		# Create clue lists for both directions
-		clues = {
-			"across": [],
-			"down": []
-		}
+		across = []
+		down = []
+
+		# Assign labels to the clues
+		label = 1
+		inc = 0
 
 		n = 0
-		c_num = 0
-		while c_num < len(grid):
-			if grid[c_num] == ".":
-				c_num += 1
+		for i in range(0, dimensions[0] * dimensions[1]):
+			if grid[i] == ".":
 				continue
 
-			if across_already(c_num, clues["across"]):
-				if down_already(c_num, clues["down"]):
-					# If there is already a down and across clues, skip
-					c_num += 1
-					continue
-				
-				# If there is no down clue for this square yet, assign
-				squares = get_squares(c_num, "down", grid, dimensions)
-				clues["down"] += [{
-					"x": c_num % dimensions[0],
-					"y": c_num // dimensions[0],
+			# Reset label increase
+			inc = 0
+
+			if i % dimensions[0] == 0 or grid[i - 1] == ".":
+				squares = get_squares(i, "across", grid, dimensions)
+				across += [{
+					"x": i % dimensions[0],
+					"y": i // dimensions[0],
+					"label": label,
 					"clue": clues_list[n],
 					"word": word_from_squares(squares, grid),
 					"squares": squares,
 					"related_clues": []
 				}]
-
 				n += 1
-				continue
+				inc = 1
 
-			# If there is no across clue for this square yet, assign
-			squares = get_squares(c_num, "across", grid, dimensions)
-			clues["across"] += [{
-				"x": c_num % dimensions[0],
-				"y": c_num // dimensions[0],
-				"clue": clues_list[n],
-				"word": word_from_squares(squares, grid),
-				"squares": squares,
-				"related_clues": []
-			}]
-			
-			# Number of clue in clues list
-			n += 1
+			if i < dimensions[0] or grid[i - dimensions[0]] == ".":
+				squares = get_squares(i, "down", grid, dimensions)
+				down += [{
+					"x": i % dimensions[0],
+					"y": i // dimensions[0],
+					"label": label,
+					"clue": clues_list[n],
+					"word": word_from_squares(squares, grid),
+					"squares": squares,
+					"related_clues": []
+				}]
+				n += 1
+				inc = 1
 
-		return clues["across"], clues["down"]
+			label += inc
+
+		for c in across + down:
+			print(c["label"], c["clue"])
+
+		return across, down
 				
 	def parse_extras(self, extras, grid):
 		if "RTBL" in extras and "GRBS" in extras:
