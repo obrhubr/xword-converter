@@ -2,8 +2,8 @@ import io
 import re
 import copy
 
-from plugin import Plugin
-from puzzle import Puzzle
+from xword_converter.plugin import Plugin
+from xword_converter.puzzle import Puzzle
 
 class Plugin(Plugin):
 	def __init__(self):
@@ -335,7 +335,7 @@ class Plugin(Plugin):
 		stream.write(b"\x00")
 
 
-	def export(self, puzzle):
+	def serialize(self, puzzle):
 		puzzle_stream = io.BytesIO()
 
 		# write header

@@ -1,6 +1,7 @@
-from plugin import Plugin
-from puzzle import Puzzle
 import json
+
+from xword_converter.plugin import Plugin
+from xword_converter.puzzle import Puzzle
 
 class Plugin(Plugin):
 	def __init__(self):
@@ -17,7 +18,7 @@ class Plugin(Plugin):
 			puzzle["metadata"]
 		)
 
-	def export(self, puzzle):
+	def serialize(self, puzzle):
 		puzzle_dict = {
 			"grid": puzzle.grid,
 			"across_clues": puzzle.across_clues,

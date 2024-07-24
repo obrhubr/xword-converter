@@ -1,3 +1,6 @@
 plugins/__pycache__/
 __pycache__
 data/*
+dev.sh
+*.egg-info
+build
