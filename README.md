@@ -99,11 +99,11 @@ The `Puzzle` object that is the output of parsing and serializing looks like thi
         5
     ],
     "metadata": {
-        "title": "Crosshare puzzle",
-        "author": "uuid v4",
-        "copyright": "Copyright uuid v4, all rights reserved",
+        "title": "Crossword puzzle",
+        "author": "obrhubr",
+        "copyright": "Copyright notice",
         "notes": {
-            "note": "Created on crosshare.org"
+            "note": "This is a note."
         }
     }
 }
