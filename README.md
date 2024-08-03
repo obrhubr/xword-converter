@@ -27,26 +27,12 @@ There are two main ways to use the program. You can either import directly from 
 ```python
 import xword_converter as xword
 
+converter = xword.Converter()
+
 # Import the puzzle to a Puzzle  object from a file
-puzzle = xword.puz.import_file("puzzle.puz")
+puzzle = converter.import_puzzle("puzzle.puz", "puz")
 # And write the Puzzle object to file again
-xword.json.export_file(puzzle, "puzzle.json")
-```
-
-If you already read the file somewhere and only want to parse it or if you want to import your own custom exporting logic, do the following:
-
-```python
-import xword_converter as xword
-
-json_puzzle = { 
-	"puzzle": "... data ..."
-}
-
-# Read the puzzle from a string
-puzzle = xword.json_nyt.parse(json_puzzle)
-
-# And serialize it again
-xword.puz.serialize(puzzle)
+converter.export_puzzle(puzzle, "puzzle.json", "json")
 ```
 
 The `Puzzle` object that is the output of parsing and serializing looks like this has the following attributes:

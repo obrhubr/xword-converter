@@ -1,1 +1,0 @@
-python3.8 xw-converter.py -i ./data/fill_medium.puz -if puz -o ./data/fill_medium.json -of json
